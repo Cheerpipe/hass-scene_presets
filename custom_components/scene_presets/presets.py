@@ -15,7 +15,8 @@ async def apply_preset(
     transition,
     shuffle,
     smart_shuffle,
-    brightness_override=None
+    brightness_override=None,
+    turn_on_off_lights=True
 ):
     preset_data = None
     for preset in PRESET_DATA.get("presets", []):
@@ -45,6 +46,9 @@ async def apply_preset(
         }
         hass_state = hass.states.get(entity_id)
         if not hass_state:
+            continue
+
+        if not turn_on_off_lights and hass_state.state != "on":
             continue
 
         if shuffle:

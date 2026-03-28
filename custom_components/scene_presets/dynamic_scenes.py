@@ -58,6 +58,7 @@ class DynamicScene:
                 self.parameters.get(ATTR_SHUFFLE),
                 smart_shuffle,
                 self.parameters.get(ATTR_BRIGHTNESS, None),
+                self.parameters.get(ATTR_TURN_ON_OFF_LIGHTS, True)
             )
             run_count += 1
 
@@ -90,6 +91,18 @@ class DynamicScene:
 class DynamicSceneManager:
     def __init__(self):
         self.dynamic_scenes = {}
+        self._update_callbacks = []
+
+    def add_update_callback(self, callback):
+        self._update_callbacks.append(callback)
+
+    def remove_update_callback(self, callback):
+        if callback in self._update_callbacks:
+            self._update_callbacks.remove(callback)
+
+    def _fire_update_callbacks(self):
+        for callback in self._update_callbacks:
+            callback()
 
     def create_new(self, hass, parameters, interval):
         scene = DynamicScene(
@@ -99,6 +112,7 @@ class DynamicSceneManager:
             interval
         )
         self.dynamic_scenes[scene.id] = scene
+        self._fire_update_callbacks()
         return scene.to_dict()
 
     def get_by_id(self, id):
@@ -110,6 +124,7 @@ class DynamicSceneManager:
         if active_scene:
             active_scene.stop_loop()
             del self.dynamic_scenes[id]
+            self._fire_update_callbacks()
 
     def stop_all(self):
         scenes_to_delete = []
@@ -120,6 +135,9 @@ class DynamicSceneManager:
 
         for scene_id in scenes_to_delete:
             del self.dynamic_scenes[scene_id]
+
+        if scenes_to_delete:
+            self._fire_update_callbacks()
 
     def stop_all_for_entity_id(self, entity_id):
         scenes_to_delete = []
@@ -132,6 +150,9 @@ class DynamicSceneManager:
 
         for scene_id in scenes_to_delete:
             del self.dynamic_scenes[scene_id]
+
+        if scenes_to_delete:
+            self._fire_update_callbacks()
 
     def get_all(self):
         return list(self.dynamic_scenes.values())

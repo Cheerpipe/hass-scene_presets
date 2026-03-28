@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {PresetTile} from "../components/PresetTile";
 import {useLocalStorage} from "../hooks/useLocalStorage";
+import {useHassEntity} from "../hooks/useHassEntity";
 import HaSwitch from "../components/hass/building_blocks/HaSwitch";
 import {HaTargetSelector, HaTargetSelectorValue} from "../components/hass/selectors/HaTargetSelector";
 import {HaNumberSelector} from "../components/hass/selectors/HaNumberSelector";
@@ -177,16 +178,18 @@ export const PresetApplyPage: React.FunctionComponent<{
 }): React.JSX.Element => {
     const [targets, setTargets] = useLocalStorage<HaTargetSelectorValue>("scene_presets_apply_page_targets", {});
 
-    const [shuffle, setShuffle] = useLocalStorage<boolean>("scene_presets_apply_page_shuffle", DEFAULT_TUNABLE_SETTINGS.shuffle);
-    const [smartShuffle, setSmartShuffle] = useLocalStorage<boolean>("scene_presets_apply_page_smart_shuffle", DEFAULT_TUNABLE_SETTINGS.smartShuffle);
-    const [customBrightness, setCustomBrightness] = useLocalStorage<boolean>("scene_presets_apply_page_custom_brightness", DEFAULT_TUNABLE_SETTINGS.customBrightness);
-    const [customBrightnessValue, setCustomBrightnessValue] = useLocalStorage<number>("scene_presets_apply_page_custom_brightness_value", DEFAULT_TUNABLE_SETTINGS.customBrightnessValue);
-    const [customTransition, setCustomTransition] = useLocalStorage<boolean>("scene_presets_apply_page_custom_transition", DEFAULT_TUNABLE_SETTINGS.customTransition);
-    const [customTransitionValue, setCustomTransitionValue] = useLocalStorage<number>("scene_presets_apply_page_custom_transition_value", DEFAULT_TUNABLE_SETTINGS.customTransitionValue);
+    const [turnOnOffLights, setTurnOnOffLights] = useHassEntity<boolean>(hass, "switch.scene_presets_turn_on_off_lights", true, "switch");
 
-    const [dynamic, setDynamic] = useLocalStorage<boolean>("scene_presets_apply_page_dynamic", DEFAULT_TUNABLE_SETTINGS.dynamic);
-    const [dynamicTransitionValue, setDynamicTransitionValue] = useLocalStorage<number>("scene_presets_apply_page_dynamic_transition_value", DEFAULT_TUNABLE_SETTINGS.dynamicTransitionValue);
-    const [dynamicIntervalValue, setDynamicIntervalValue] = useLocalStorage<number>("scene_presets_apply_page_dynamic_interval_value", DEFAULT_TUNABLE_SETTINGS.dynamicIntervalValue);
+    const [shuffle, setShuffle] = useHassEntity<boolean>(hass, "switch.scene_presets_shuffle", DEFAULT_TUNABLE_SETTINGS.shuffle, "switch");
+    const [smartShuffle, setSmartShuffle] = useHassEntity<boolean>(hass, "switch.scene_presets_smart_shuffle", DEFAULT_TUNABLE_SETTINGS.smartShuffle, "switch");
+    const [customBrightness, setCustomBrightness] = useHassEntity<boolean>(hass, "switch.scene_presets_custom_brightness", DEFAULT_TUNABLE_SETTINGS.customBrightness, "switch");
+    const [customBrightnessValue, setCustomBrightnessValue] = useHassEntity<number>(hass, "number.scene_presets_custom_brightness_value", DEFAULT_TUNABLE_SETTINGS.customBrightnessValue, "number");
+    const [customTransition, setCustomTransition] = useHassEntity<boolean>(hass, "switch.scene_presets_custom_transition", DEFAULT_TUNABLE_SETTINGS.customTransition, "switch");
+    const [customTransitionValue, setCustomTransitionValue] = useHassEntity<number>(hass, "number.scene_presets_custom_transition_value", DEFAULT_TUNABLE_SETTINGS.customTransitionValue, "number");
+
+    const [dynamic, setDynamic] = useHassEntity<boolean>(hass, "switch.scene_presets_dynamic", DEFAULT_TUNABLE_SETTINGS.dynamic, "switch");
+    const [dynamicTransitionValue, setDynamicTransitionValue] = useHassEntity<number>(hass, "number.scene_presets_dynamic_transition_value", DEFAULT_TUNABLE_SETTINGS.dynamicTransitionValue, "number");
+    const [dynamicIntervalValue, setDynamicIntervalValue] = useHassEntity<number>(hass, "number.scene_presets_dynamic_interval_value", DEFAULT_TUNABLE_SETTINGS.dynamicIntervalValue, "number");
 
     const [lastDynamicSceneRefresh, setLastDynamicSceneRefresh] = useState(0);
 
@@ -245,7 +248,8 @@ export const PresetApplyPage: React.FunctionComponent<{
                 payload = {
                     ...payload,
                     transition: dynamicTransitionValue,
-                    interval: dynamicIntervalValue
+                    interval: dynamicIntervalValue,
+                    turn_on_off_lights: turnOnOffLights
                 };
 
                 service = "start_dynamic_scene";
@@ -255,6 +259,7 @@ export const PresetApplyPage: React.FunctionComponent<{
                     shuffle: shuffle,
                     smart_shuffle: smartShuffle,
                     transition: customTransition ? customTransitionValue : undefined,
+                    turn_on_off_lights: turnOnOffLights
                 };
 
                 service = "apply_preset";
@@ -279,7 +284,7 @@ export const PresetApplyPage: React.FunctionComponent<{
             customBrightness, customBrightnessValue,
             customTransition, customTransitionValue,
 
-            dynamic, dynamicIntervalValue, dynamicTransitionValue,
+            dynamic, dynamicIntervalValue, dynamicTransitionValue, turnOnOffLights,
             fetchActiveDynamicScenes
         ]
     );
@@ -483,6 +488,18 @@ export const PresetApplyPage: React.FunctionComponent<{
                                 </div>
                             </div>
                         </div>
+                        <label
+                            style={{
+                                lineHeight: "3rem"
+                            }}
+                        >
+                            <Switch
+                                label={"Turn On Off Lights"}
+                                value={turnOnOffLights}
+                                setValue={(v) => setTurnOnOffLights(v)}
+                            />
+                        </label>
+                        <br/>
                         <label
                             style={{
                                 lineHeight: "3rem"

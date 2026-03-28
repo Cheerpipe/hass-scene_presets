@@ -19,3 +19,4 @@ ATTR_SMART_SHUFFLE = "smart_shuffle"
 ATTR_INTERVAL = "interval"
 
 ATTR_DYNAMIC_SCENE_ID = "id"
+ATTR_TURN_ON_OFF_LIGHTS = "turn_on_off_lights"

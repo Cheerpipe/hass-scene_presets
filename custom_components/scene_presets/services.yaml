@@ -48,6 +48,13 @@ apply_preset:
       example: true
       selector:
         boolean:
+    turn_on_off_lights:
+      name: "Turn on off lights"
+      description: "Apply the preset to lights that are currently turned off"
+      default: true
+      example: true
+      selector:
+        boolean:
 
 get_dynamic_scenes:
   name: "Get dynamic scenes"
@@ -100,6 +107,13 @@ start_dynamic_scene:
           min: 0
           max: 300
           unit_of_measurement: seconds
+    turn_on_off_lights:
+      name: "Turn on off lights"
+      description: "Apply the preset to lights that are currently turned off"
+      default: true
+      example: true
+      selector:
+        boolean:
 
 stop_dynamic_scene:
   name: "Stop dynamic scene"

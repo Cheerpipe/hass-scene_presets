@@ -19,7 +19,8 @@ APPLY_PRESET_SCHEMA = vol.Schema({
     vol.Optional(ATTR_BRIGHTNESS): vol.Coerce(int),
     vol.Optional(ATTR_TRANSITION, default=1): vol.Coerce(int),
     vol.Optional(ATTR_SHUFFLE, default=False): cv.boolean,
-    vol.Optional(ATTR_SMART_SHUFFLE, default=False): cv.boolean
+    vol.Optional(ATTR_SMART_SHUFFLE, default=False): cv.boolean,
+    vol.Optional(ATTR_TURN_ON_OFF_LIGHTS, default=True): cv.boolean,
 })
 
 START_DYNAMIC_SCENE_SCHEMA = vol.Schema({
@@ -28,6 +29,7 @@ START_DYNAMIC_SCENE_SCHEMA = vol.Schema({
     vol.Optional(ATTR_INTERVAL, default=60): vol.Coerce(int),
     vol.Optional(ATTR_BRIGHTNESS): vol.Coerce(int),
     vol.Optional(ATTR_TRANSITION, default=1): vol.Coerce(int),
+    vol.Optional(ATTR_TURN_ON_OFF_LIGHTS, default=True): cv.boolean,
 })
 
 STOP_DYNAMIC_SCENE_SCHEMA = vol.Schema({
@@ -41,6 +43,8 @@ STOP_DYNAMIC_SCENES_FOR_TARGETS_SCHEMA = vol.Schema({
 
 _LOGGER = logging.getLogger(__name__)
 
+PLATFORMS = ["sensor", "number", "switch"]
+
 dynamic_scene_manager = DynamicSceneManager()
 
 
@@ -52,6 +56,7 @@ async def async_setup(hass, config):
         transition = call.data.get(ATTR_TRANSITION, 1)
         shuffle = call.data.get(ATTR_SHUFFLE, False)
         smart_shuffle = call.data.get(ATTR_SMART_SHUFFLE, False)
+        turn_on_off_lights = call.data.get(ATTR_TURN_ON_OFF_LIGHTS, True)
 
         entity_ids = ensure_list(targets.get("entity_id"))
         device_ids = ensure_list(targets.get("device_id"))
@@ -69,7 +74,8 @@ async def async_setup(hass, config):
             transition,
             shuffle,
             smart_shuffle,
-            brightness_override
+            brightness_override,
+            turn_on_off_lights
         )
 
 
@@ -84,6 +90,7 @@ async def async_setup(hass, config):
         brightness_override = call.data.get(ATTR_BRIGHTNESS)
         transition = call.data.get(ATTR_TRANSITION, 1)
         shuffle = True
+        turn_on_off_lights = call.data.get(ATTR_TURN_ON_OFF_LIGHTS, True)
 
         entity_ids = ensure_list(targets.get("entity_id"))
         device_ids = ensure_list(targets.get("device_id"))
@@ -100,7 +107,8 @@ async def async_setup(hass, config):
                 "light_entity_ids": light_entity_ids,
                 "brightness": brightness_override,
                 "transition": transition,
-                "shuffle": shuffle
+                "shuffle": shuffle,
+                "turn_on_off_lights": turn_on_off_lights
             },
             interval
         )
@@ -186,6 +194,8 @@ async def async_setup_entry(
     await async_setup_view(hass)
 
     async_setup_websocket_api(hass, dynamic_scene_manager)
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
