@@ -16,7 +16,7 @@ async def apply_preset(
     shuffle,
     smart_shuffle,
     brightness_override=None,
-    turn_on_off_lights=True
+    turn_on_off_lights=False
 ):
     preset_data = None
     for preset in PRESET_DATA.get("presets", []):

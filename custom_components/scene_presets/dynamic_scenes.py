@@ -58,7 +58,7 @@ class DynamicScene:
                 self.parameters.get(ATTR_SHUFFLE),
                 smart_shuffle,
                 self.parameters.get(ATTR_BRIGHTNESS, None),
-                self.parameters.get(ATTR_TURN_ON_OFF_LIGHTS, True)
+                self.parameters.get(ATTR_TURN_ON_OFF_LIGHTS, False)
             )
             run_count += 1
 

@@ -22,6 +22,8 @@ const DEFAULT_TUNABLE_SETTINGS = {
     dynamic: false,
     dynamicTransitionValue: 45,
     dynamicIntervalValue: 60,
+
+    turnOnOffLights: false,
 };
 
 const DYNAMIC_SCENE_REFRESH_INTERVAL = 30*1000;
@@ -178,7 +180,7 @@ export const PresetApplyPage: React.FunctionComponent<{
 }): React.JSX.Element => {
     const [targets, setTargets] = useLocalStorage<HaTargetSelectorValue>("scene_presets_apply_page_targets", {});
 
-    const [turnOnOffLights, setTurnOnOffLights] = useHassEntity<boolean>(hass, "switch.scene_presets_turn_on_off_lights", true, "switch");
+    const [turnOnOffLights, setTurnOnOffLights] = useHassEntity<boolean>(hass, "switch.scene_presets_turn_on_off_lights", DEFAULT_TUNABLE_SETTINGS.turnOnOffLights, "switch");
 
     const [shuffle, setShuffle] = useHassEntity<boolean>(hass, "switch.scene_presets_shuffle", DEFAULT_TUNABLE_SETTINGS.shuffle, "switch");
     const [smartShuffle, setSmartShuffle] = useHassEntity<boolean>(hass, "switch.scene_presets_smart_shuffle", DEFAULT_TUNABLE_SETTINGS.smartShuffle, "switch");
@@ -480,6 +482,8 @@ export const PresetApplyPage: React.FunctionComponent<{
                                             setDynamic(DEFAULT_TUNABLE_SETTINGS.dynamic);
                                             setDynamicTransitionValue(DEFAULT_TUNABLE_SETTINGS.dynamicTransitionValue);
                                             setDynamicIntervalValue(DEFAULT_TUNABLE_SETTINGS.dynamicIntervalValue);
+
+                                            setTurnOnOffLights(DEFAULT_TUNABLE_SETTINGS.turnOnOffLights);
                                         }}
 
                                         size={28}

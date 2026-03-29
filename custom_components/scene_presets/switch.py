@@ -50,7 +50,7 @@ class ScenePresetsSwitchEntity(RestoreEntity, SwitchEntity):
 
 class ScenePresetsTurnOnOffLightsSwitch(ScenePresetsSwitchEntity):
     def __init__(self):
-        super().__init__("turn_on_off_lights", "Turn On Off Lights", "mdi:lightbulb-on", True)
+        super().__init__("turn_on_off_lights", "Turn On Off Lights", "mdi:lightbulb-on", False)
 
 class ScenePresetsDynamicSwitch(ScenePresetsSwitchEntity):
     def __init__(self):
