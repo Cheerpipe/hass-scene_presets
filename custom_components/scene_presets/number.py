@@ -1,4 +1,5 @@
 import logging
+import math
 from homeassistant.components.number import NumberEntity
 from homeassistant.helpers.restore_state import RestoreEntity
 from .const import DOMAIN, NAME
@@ -36,6 +37,22 @@ class ScenePresetsNumberEntity(RestoreEntity, NumberEntity):
                 self._attr_native_value = float(last_state.state)
             except ValueError:
                 pass
+
+    async def async_set_value(self, value: float) -> None:
+        """Set new value, clamping it if out of bounds."""
+        try:
+            value = float(value)
+            if math.isnan(value) or math.isinf(value):
+                value = self._attr_native_min_value
+        except (ValueError, TypeError):
+            value = self._attr_native_min_value
+
+        if self._attr_native_min_value is not None and value < self._attr_native_min_value:
+            value = self._attr_native_min_value
+        elif self._attr_native_max_value is not None and value > self._attr_native_max_value:
+            value = self._attr_native_max_value
+
+        await super().async_set_value(value)
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
